@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Float
-from sqlalchemy import relationship
+from sqlalchemy import Column, Integer, String, Date, DateTime, Float
+from sqlalchemy.orm import relationship
 
 engine = create_engine('postgresql://action:action@localhost:5432/tbay')
 Session = sessionmaker(bind=engine)
@@ -19,7 +19,8 @@ class Item(Base):
     description = Column(String)
     start_time = Column(DateTime, default=datetime.utcnow)
     owner_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    user = relationship("User", uselist=false, backref="user")
+    #owner_id = Column(Integer, ForeignKey('person.id'), nullable=False)
+    #user = relationship("User", uselist=false, backref="user")
     
 class User(Base):
     __tablename__ = "users"
@@ -28,6 +29,8 @@ class User(Base):
     username = Column(String, nullable=False)
     password = Column(String, nullable=False)
     item = relationship("Item", uselist=False, backref="owner")
+    #passport = relationship("Passport", uselist=False, backref="owner")
+
     
 class Bid(Base):
     __tablename__ = "bids"
@@ -39,13 +42,18 @@ class Bid(Base):
            
 Base.metadata.create_all(engine)  #creates the tables in the database
 
+# beyonce = Person(name="Beyonce Knowles")
+# passport = Passport()
+# beyonce.passport = passport
+
 sneezy = User(username="Sneezy", password="1234")
 doc = User(username="Doc", password="5678")
 grumpy = User("Grumpy", password="3456")
 
-baseball = Item(name="Magic Baseball", description="You will always be a winner!", user_id=3)
+baseball = Item(name="Magic Baseball", description="You will always be a winner!")
+grumpy.item = baseball
 
-session.add_all([])
+session.add_all([sneezy, doc, grumpy, baseball])
 session.commit()
 
 

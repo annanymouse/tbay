@@ -4,12 +4,10 @@
 
 from datetime import datetime
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, ForeignKey, Column, Integer, String, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import ForeignKey, Column, Integer, String, Date, DateTime, Float, Boolean
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import select
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.sql import func, select
 
 engine = create_engine('postgresql://action:action@localhost:5432/tbay')
 Session = sessionmaker(bind=engine)
@@ -75,3 +73,8 @@ print("Item: {}\nDescription: {}\nOffered up for Auction by Owner:  {}\nAuction 
 divider("BIDS")
 for bid in session.query(Bid).order_by(Bid.price):
     print("({}) {} bids {} on {}.".format(bid.id, bid.bidder.username, bid.price, bid.auction_item.name))
+
+divider("AUCTION WINNER")
+max_bid = session.query(func.max(Bid.price)).scalar()
+for winner in session.query(Bid).filter(Bid.price==max_bid).all():
+    print("Congratulations to {}, the lucky winner who bid ${} on {}!!".format(winner.bidder.username, winner.price, winner.auction_item.name))
